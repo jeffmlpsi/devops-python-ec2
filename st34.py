@@ -91,6 +91,7 @@ def startinstance(ami_instance, securitygroupid, securitykey, keylocation, count
     #  boto3 setup
     #ec2 = boto3.resource('ec2', region_name=region)
     # client is used to wait for instance status
+    boto3.setup_default_session(region_name=region, profile_name='iam-profile')
     client = boto3.client('ec2',region_name=region)
 
 #   get subnet, will just use the first subnet within the first vpc
