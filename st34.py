@@ -197,9 +197,12 @@ def startinstance(ami_instance, securitygroupid, securitykey, keylocation, count
         print('updating yum on ' + str(ip_address))
         stdin, stdout, stderr = ssh.exec_command("sudo yum -y update")
         stdin.flush()
+
+        print('installing java 1.8 on ' + str(ip_address))
+        stdin, stdout, stderr = ssh.exec_command("sudo yum -y install java-1.8*")
        
         print('installing tomcat on ' + str(ip_address))
-        stdin, stdout, stderr = ssh.exec_command("sudo yum -y install tomcat8 tomcat8-webapps")
+        stdin, stdout, stderr = ssh.exec_command("sudo yum -y install tomcat10 tomcat10-webapps")
         stdin.flush()
         data = stdout.read().splitlines()
         if data[-1].decode() == 'Complete!':
@@ -210,7 +213,7 @@ def startinstance(ami_instance, securitygroupid, securitykey, keylocation, count
 
    
         print('starting tomcat on ' + str(ip_address))
-        stdin, stdout, stderr = ssh.exec_command("sudo service tomcat8 start")
+        stdin, stdout, stderr = ssh.exec_command("sudo service tomcat10 start")
         stdin.flush()
         data = stdout.read().splitlines()
         #data is binary so convert to a string
@@ -221,7 +224,7 @@ def startinstance(ami_instance, securitygroupid, securitykey, keylocation, count
             return
    
         print('getting tomcat status from ' + str(ip_address))
-        stdin, stdout, stderr = ssh.exec_command("sudo service tomcat8 status")
+        stdin, stdout, stderr = ssh.exec_command("sudo service tomcat10 status")
         stdin.flush()
         data = stdout.read().splitlines()
         if 'running' in data[-1].decode():
