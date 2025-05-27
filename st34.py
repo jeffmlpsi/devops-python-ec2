@@ -198,8 +198,8 @@ def startinstance(ami_instance, securitygroupid, securitykey, keylocation, count
         stdin, stdout, stderr = ssh.exec_command("sudo yum -y update")
         stdin.flush()
 
-        print('installing java 1.8 on ' + str(ip_address))
-        stdin, stdout, stderr = ssh.exec_command("sudo yum -y install java-1.8*")
+        #  print('installing java 1.8 on ' + str(ip_address))
+        # stdin, stdout, stderr = ssh.exec_command("sudo yum -y install java-1.8*")
        
         print('installing tomcat on ' + str(ip_address))
         stdin, stdout, stderr = ssh.exec_command("sudo yum -y install tomcat10 tomcat10-webapps")
@@ -213,21 +213,21 @@ def startinstance(ami_instance, securitygroupid, securitykey, keylocation, count
 
    
         print('starting tomcat on ' + str(ip_address))
-        stdin, stdout, stderr = ssh.exec_command("sudo service tomcat10 start")
+        stdin, stdout, stderr = ssh.exec_command("sudo systemctl start tomcat10")
         stdin.flush()
         data = stdout.read().splitlines()
-        #data is binary so convert to a string
-        if 'OK' in data[-1].decode():
-            print('tomcat start successful on ' + str(ip_address))
-        else:
-            print('could NOT start tomcat on ' + str(ip_address))
-            return
+        # #data is binary so convert to a string
+        # if 'started' in data[-1].decode():
+        #     print('tomcat start successful on ' + str(ip_address))
+        # else:
+        #     print('could NOT start tomcat on ' + str(ip_address))
+        #     return
    
         print('getting tomcat status from ' + str(ip_address))
-        stdin, stdout, stderr = ssh.exec_command("sudo service tomcat10 status")
+        stdin, stdout, stderr = ssh.exec_command("sudo systemctl status tomcat10 | head -n 3 | grep active")
         stdin.flush()
         data = stdout.read().splitlines()
-        if 'running' in data[-1].decode():
+        if 'Active: active' in data[-1].decode():
             print('confirmed tomcat service is running on' + str(ip_address))
         else:
             print('could not determine if tomcat is running on ' + str(ip_address))
@@ -259,16 +259,18 @@ def startinstance(ami_instance, securitygroupid, securitykey, keylocation, count
         # end of loop for processing created instances
         print('closing ssh connection to ', str(ip_address))
         ssh.close
-
-    return
     
-#    if delete : 
-#            response=client.terminate_instances(InstanceIds=instanceIds) #JSON is returned
-#            print 'The following instances have been queued for termination: ', instanceIds   
+    if delete: 
+           response=client.terminate_instances(InstanceIds=instanceIds) #JSON is returned
+           print('The following instances have been queued for termination: ', instanceIds)  
+    
+    
+    return
           
 
 def usage():
-    print('usage: python st34.py securityGroup sshKeyName sshKeyFolder')
+    print('usage: python st34.py securityGroup sshKeyName sshKeyFolder -d')
+    print('-d optional, delete instance before exiting')
 
 
 
@@ -301,24 +303,27 @@ def verifyparameters(keylocation,securitykey,securitygroup):
 
 
 if  __name__ =='__main__':
-    if len(sys.argv) != 4:
+    if len(sys.argv) < 4:
         usage()
         exit(1)
       
     count = 1
     #'ami-07706bb32254a7fe5' Amazon Linux 2 AMI (HVM), SSD Volume Type, us-west-1   
-    # ami-824c4ee2 is the tomcat6 AMI, us-west-1
     ami_instance = 'ami-07706bb32254a7fe5'
     securitygroup = sys.argv[1]
     securitykey = sys.argv[2]
     keylocation = sys.argv[3]
+    if len(sys.argv) > 4:
+        if sys.argv[4] == '-d':
+            delete = True
+            print('will delete instance before exiting')
+    else:
+        delete = False
 
     rtn, securitygroupid = verifyparameters(keylocation, securitykey,securitygroup)
 
     if rtn  == False:
         exit(1)
-
-    delete = False
 
     startinstance(ami_instance, securitygroupid, securitykey, keylocation, count, delete)
     exit(0)
