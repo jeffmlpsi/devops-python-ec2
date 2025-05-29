@@ -6,7 +6,7 @@ if [ -z "$1" ]; then
 fi
 
 securitygrp=$1
-res=$(aws ec2 describe-security-groups --profile=iam-profile --filters Name=ip-permission.from-port,Values=22 Name=ip-permission.from-port,Values=443 Name=ip-permission.from-port,Values=80 Name=ip-permission.from-port,Values=8080 --query 'SecurityGroups[*].{Name:GroupName,ID:GroupId}' | grep $securitygrp | head -1)
+res=$(aws ec2 describe-security-groups --profile=iam-profile --output text --filters Name=ip-permission.from-port,Values=22 Name=ip-permission.from-port,Values=443 Name=ip-permission.from-port,Values=80 Name=ip-permission.from-port,Values=8080 --query 'SecurityGroups[*].{Name:GroupName,ID:GroupId}' | grep $securitygrp | head -1)
 
 if [ -z "$res" ]; then
     exit 1
