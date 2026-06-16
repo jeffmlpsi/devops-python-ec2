@@ -310,7 +310,8 @@ if  __name__ =='__main__':
       
     count = 1
     #'ami-07706bb32254a7fe5' Amazon Linux 2 AMI (HVM), SSD Volume Type, us-west-1   
-    ami_instance = 'ami-07706bb32254a7fe5'
+    # ami_instance = 'ami-07706bb32254a7fe5'
+    ami_instance = 'ami-0f0e8607c76740020' 
     securitygroup = sys.argv[1]
     securitykey = sys.argv[2]
     keylocation = sys.argv[3]
